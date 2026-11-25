@@ -1,0 +1,30 @@
+﻿name: collect-velib
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: velib
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q requests
+      - name: releve
+        run: |
+          mkdir -p data/raw && cp src/stations_info.json data/raw/
+          python src/collect_local.py
+      - name: sauvegarde sur la branche data
+        run: |
+          mkdir /tmp/new && cp -r data/raw/date=* /tmp/new/
+          git config user.name velib-bot
+          git config user.email velib-bot@users.noreply.github.com
+          if git ls-remote --exit-code --heads origin data >/dev/null; then
+            git fetch origin data && git checkout -f data
+          else
+            git checkout --orphan data && git rm -rf . -q
+          fi
+          mkdir -p raw && cp -r /tmp/new/. raw/
+          git add raw && git commit -m "snapshot $(date -u +%FT%H:%MZ)" && git push origin data
