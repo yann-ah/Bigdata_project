@@ -16,6 +16,9 @@ spec:
           containers:
           - name: collect
             image: python:3.12-slim
+            resources:
+              requests: {cpu: 50m, memory: 64Mi}
+              limits: {cpu: 200m, memory: 256Mi}
             command: ["sh", "-c", "pip install -q boto3 requests && python /app/collect.py"]
             envFrom:
             - secretRef:
