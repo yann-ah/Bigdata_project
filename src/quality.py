@@ -1,0 +1,13 @@
+from common import load
+raw, st = load()
+print("fichiers :", raw.file.nunique(), "| lignes brutes :", len(raw))
+print("mechanical vide :", raw.mechanical.isna().sum(), "| ebike vide :", raw.ebike.isna().sum())
+print("doublons (station, ts) :", raw.duplicated(["station_id", "ts"]).sum())
+df = raw.merge(st, on="station_id", how="left")
+print("stations hors liste :", df.zone.isna().sum())
+df["bikes"] = df.mechanical.fillna(0) + df.ebike.fillna(0)
+print("velos + places > capacite :", (df.bikes + df.docks > df.capacity).sum())
+print("velos + places < capacite :", (df.bikes + df.docks < df.capacity).sum(), "(bornes HS probables)")
+print("valeurs negatives :", ((df.bikes < 0) | (df.docks < 0)).sum())
+n = raw.groupby("file").size()
+print("fichiers avec != 90 lignes :", (n != 90).sum())
