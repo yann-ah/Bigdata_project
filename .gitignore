@@ -1,5 +1,14 @@
-.env
-*.key
-__pycache__/
-.ipynb_checkpoints/
+# Données brutes et traitées : jamais dans git
 data/
+*.csv
+*.parquet
+
+# Secrets
+.env
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.pyc
+.venv/
